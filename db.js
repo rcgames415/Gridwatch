@@ -14,12 +14,59 @@ if (typeof process.loadEnvFile === 'function') {
 let client;
 let localSqlite;
 let localQueue = Promise.resolve();
+let postgresQueue = Promise.resolve();
+let lastPostgresActivityAt = 0;
 let initialization;
 
 function enqueueLocal(work) {
   const task = localQueue.then(work, work);
   localQueue = task.catch(() => {});
   return task;
+}
+
+function enqueuePostgres(work) {
+  const task = postgresQueue.then(work, work);
+  postgresQueue = task.catch(() => {});
+  return task;
+}
+
+function isTransientPostgresError(error) {
+  const codes = [error?.code, error?.cause?.code].filter(Boolean).map(String);
+  return codes.some((code) => code.startsWith('08') || [
+    'CONNECT_TIMEOUT', 'CONNECTION_CLOSED', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT',
+    'EHOSTUNREACH', 'ECONNREFUSED', '57P01', '57P02', '57P03'
+  ].includes(code)) || /connection terminated unexpectedly|socket hang up|read ECONNRESET/i.test(error?.message || '');
+}
+
+async function resetPostgresClient() {
+  const stale = client;
+  client = null;
+  lastPostgresActivityAt = 0;
+  if (stale) await stale.end({ timeout: 1 }).catch(() => {});
+}
+
+async function withPostgres(work) {
+  let connection = getClient();
+  if (Date.now() - lastPostgresActivityAt > 5000) {
+    try {
+      await connection.unsafe('SELECT 1');
+      lastPostgresActivityAt = Date.now();
+    } catch (error) {
+      if (!isTransientPostgresError(error)) throw error;
+      await resetPostgresClient();
+      connection = getClient();
+      await connection.unsafe('SELECT 1');
+      lastPostgresActivityAt = Date.now();
+    }
+  }
+  try {
+    const result = await work(connection);
+    lastPostgresActivityAt = Date.now();
+    return result;
+  } catch (error) {
+    if (isTransientPostgresError(error)) await resetPostgresClient();
+    throw error;
+  }
 }
 
 function getClient() {
@@ -77,21 +124,21 @@ export async function getRows(sql, ...params) {
   const connection = getClient();
   return connection instanceof DatabaseSync
     ? enqueueLocal(() => executor(connection).rows(sql, ...params))
-    : executor(connection).rows(sql, ...params);
+    : enqueuePostgres(() => withPostgres((active) => executor(active).rows(sql, ...params)));
 }
 
 export async function getRow(sql, ...params) {
   const connection = getClient();
   return connection instanceof DatabaseSync
     ? enqueueLocal(() => executor(connection).row(sql, ...params))
-    : executor(connection).row(sql, ...params);
+    : enqueuePostgres(() => withPostgres((active) => executor(active).row(sql, ...params)));
 }
 
 export async function run(sql, ...params) {
   const connection = getClient();
   return connection instanceof DatabaseSync
     ? enqueueLocal(() => executor(connection).run(sql, ...params))
-    : executor(connection).run(sql, ...params);
+    : enqueuePostgres(() => withPostgres((active) => executor(active).run(sql, ...params)));
 }
 
 export async function transaction(callback) {
@@ -109,7 +156,7 @@ export async function transaction(callback) {
       }
     });
   }
-  return connection.begin(async (tx) => callback(executor(tx)));
+  return enqueuePostgres(() => withPostgres((active) => active.begin(async (tx) => callback(executor(tx)))));
 }
 
 export function id() {
@@ -319,7 +366,8 @@ async function auditWith(tx, entityType, entityId, action, before, after, change
 export async function audit(entityType, entityId, action, before, after, changedBy = 'admin') {
   const connection = getClient();
   const write = () => auditWith(executor(connection), entityType, entityId, action, before, after, changedBy);
-  return connection instanceof DatabaseSync ? enqueueLocal(write) : write();
+  return connection instanceof DatabaseSync ? enqueueLocal(write)
+    : enqueuePostgres(() => withPostgres((active) => auditWith(executor(active), entityType, entityId, action, before, after, changedBy)));
 }
 
 export async function setSetting(key, value) {
