@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d1b2a" />
+  <meta name="description" content="Track and compare published monthly electricity rates from Philippine distribution utilities." />
+  <title>Gridwatch — published electricity rates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#dashboard" aria-label="Gridwatch home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="brand-word">gridwatch<span class="brand-dot">.</span><small>PHILIPPINES</small></span>
+      </a>
+
+      <div class="side-region">
+        <span class="eyebrow">Region</span>
+        <label class="region-select-wrap"><span class="region-pip"></span><select class="region-select" id="regionSelect" aria-label="Select region"></select><span class="region-code" id="regionCode">R03</span></label>
+      </div>
+
+      <span class="eyebrow nav-caption">Workspace</span>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="dashboard" type="button"><span class="nav-icon">◫</span>Overview</button>
+        <button class="nav-item" data-view="comparison" type="button"><span class="nav-icon">⌁</span>Monthly comparison</button>
+        <button class="nav-item" data-view="breakdown" type="button"><span class="nav-icon">▤</span>Rate breakdown</button>
+        <button class="nav-item" data-view="sources" type="button"><span class="nav-icon">◎</span>Sources and coverage</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="live-indicator"><span class="live-dot"></span><span>Monitoring sources</span></div>
+        <div class="sidebar-foot">Rates shown as published<br />per kWh · PHP</div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="breadcrumb"><span id="breadcrumbRegion">Region III</span><b>/</b><strong id="breadcrumbView">Overview</strong></div>
+        <div class="topbar-actions">
+          <span class="timezone-note"><span class="clock-icon">◷</span> Asia/Manila</span>
+          <label class="month-control" for="globalMonth"><span>Month</span><select id="globalMonth" aria-label="Effective month"></select></label>
+          <button class="icon-button" id="refreshIcon" type="button" aria-label="Refresh dashboard data" title="Reload data">↻</button>
+          <span class="avatar" aria-hidden="true">GW</span>
+        </div>
+      </header>
+
+      <div id="appContent" class="content-wrap">
+        <section class="view active" id="view-dashboard" aria-labelledby="pageTitle">
+          <div class="page-heading dashboard-heading">
+            <div>
+              <div class="kicker"><span class="kicker-line"></span>Gridwatch / <span id="dashboardRegionName">Region III / Central Luzon</span></div>
+              <h1 id="pageTitle">Electricity rates at a glance<span class="title-period">.</span></h1>
+              <p class="page-subtitle">A clear look at what distribution utilities publish each month.</p>
+            </div>
+            <div class="heading-date"><span class="date-icon">▦</span><span><small>Effective month</small><strong id="headingMonth">—</strong></span></div>
+          </div>
+
+          <div class="stats-grid" id="dashboardStats" aria-live="polite"></div>
+
+          <div class="content-grid rate-grid">
+            <section class="panel chart-panel" aria-labelledby="rateChartTitle">
+              <div class="panel-heading">
+                <div><span class="section-index">01 / Comparison</span><h2 id="rateChartTitle">Residential rate snapshot</h2></div>
+                <div class="panel-actions"><span class="unit-tag">PHP / kWh</span><button class="text-button" data-navigate="comparison" type="button">Compare months <span>↗</span></button></div>
+              </div>
+              <div id="dashboardChart" class="chart-area"></div>
+              <div class="chart-footer"><span><i class="legend-dot"></i>Residential rate · PHP/kWh</span><span>Third-party figures are labeled as leads; confirm them with the DU.</span></div>
+            </section>
+
+            <section class="panel coverage-panel" aria-labelledby="coverageTitle">
+              <div class="panel-heading compact-heading">
+                <div><span class="section-index">02 / Data coverage</span><h2 id="coverageTitle">Coverage at a glance</h2></div>
+                <span class="mini-badge" id="coveragePercent">0%</span>
+              </div>
+              <div class="coverage-progress"><span id="coverageBar"></span></div>
+              <div class="coverage-legend" id="coverageLegend"></div>
+              <div class="coverage-callout"><span class="callout-mark">i</span><p>Reviewed source records appear in comparisons. Third-party leads are labeled and are not official DU announcements. Missing months stay blank.</p></div>
+              <button class="link-row" data-navigate="sources" type="button">View source coverage <span>→</span></button>
+            </section>
+          </div>
+
+          <div class="content-grid lower-grid">
+            <section class="panel table-panel" aria-labelledby="latestTableTitle">
+              <div class="panel-heading">
+                <div><span class="section-index">03 / Latest available</span><h2 id="latestTableTitle">Highest and lowest rates</h2></div>
+                <button class="text-button" data-navigate="comparison" type="button">Open comparison <span>↗</span></button>
+              </div>
+              <div id="leadersContent"></div>
+            </section>
+            <section class="panel change-panel" aria-labelledby="changeTitle">
+              <div class="panel-heading"><div><span class="section-index">04 / Month over month</span><h2 id="changeTitle">What changed</h2></div></div>
+              <div id="changesContent"></div>
+              <div class="small-note">Changes compare the same customer class and published basis.</div>
+            </section>
+          </div>
+
+          <section class="panel coverage-list-panel">
+            <div class="panel-heading"><div><span class="section-index">05 / Utilities</span><h2 id="regionCoverageTitle">Central Luzon coverage</h2></div><div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="duSearch" type="search" placeholder="Find a utility" aria-label="Search distribution utilities" /></label><button class="text-button" data-navigate="sources" type="button">All coverage <span>↗</span></button></div></div>
+            <div id="duCoverageTable"></div>
+          </section>
+
+          <footer class="bill-note"><span class="note-icon">✳</span><p><strong>A published rate is a reference point.</strong> Your household bill can differ based on usage, customer class, taxes, adjustments, and other bill details. Gridwatch compares published rates per kWh, not estimated bills.</p></footer>
+        </section>
+
+        <section class="view" id="view-comparison" aria-labelledby="comparisonTitle">
+          <div class="page-heading">
+            <div><div class="kicker"><span class="kicker-line"></span>Compare / monthly</div><h1 id="comparisonTitle">Compare monthly rates<span class="title-period">.</span></h1><p class="page-subtitle">Compare published residential totals over time. Missing months stay blank.</p></div>
+            <span class="unit-tag large-unit">PHP / kWh</span>
+          </div>
+          <section class="panel filter-panel">
+            <div class="filter-block"><label for="comparisonClass">Customer class</label><select id="comparisonClass" class="form-select"></select></div>
+            <div class="filter-block"><label for="comparisonFrom">From</label><input class="form-input" type="month" id="comparisonFrom" /></div>
+            <div class="filter-block"><label for="comparisonTo">To</label><input class="form-input" type="month" id="comparisonTo" /></div>
+            <details class="du-picker"><summary><span>Utilities</span><strong id="duPickerSummary">Select utilities</strong><b>⌄</b></summary><div class="du-picker-list" id="comparisonDuList"></div></details>
+            <button class="button button-primary" id="applyComparison" type="button">Update comparison <span>→</span></button>
+          </section>
+          <section class="panel comparison-panel"><div class="panel-heading"><div><span class="section-index">01 / Rate history</span><h2>Monthly rate comparison</h2></div><span class="unit-tag">Residential · PHP/kWh</span></div><div id="comparisonChart" class="chart-area chart-large"></div><p class="chart-note">Bars are grouped by month. Scroll horizontally to see the full history; missing rates are left blank. Hover over or focus a bar for its published basis.</p></section>
+          <section class="panel table-panel"><div class="panel-heading"><div><span class="section-index">02 / Rate table</span><h2>Rates by month</h2></div><span class="table-hint">Each row includes its source, customer class, basis, and retrieval date.</span></div><div id="comparisonTable"></div></section>
+          <div class="bill-note"><span class="note-icon">✳</span><p>Compare rates with the same customer class and published per kWh basis. Bills can differ with usage, taxes, and other charges. An empty cell means that no rate is available for that DU and month.</p></div>
+        </section>
+
+        <section class="view" id="view-breakdown" aria-labelledby="breakdownTitle">
+          <div class="page-heading">
+            <div><div class="kicker"><span class="kicker-line"></span>Under the total</div><h1 id="breakdownTitle">See each published charge<span class="title-period">.</span></h1><p class="page-subtitle">Compare only the components a DU actually publishes.</p></div>
+            <label class="month-control standalone-month" for="breakdownMonth"><span>Month</span><select id="breakdownMonth"></select></label>
+          </div>
+          <div class="breakdown-intro"><div class="breakdown-index">05</div><p>The published total is stored separately from the component sum. A blank value means the source did not provide it. <b>₱0.00</b> appears only when the source explicitly reports zero.</p></div>
+          <section class="panel breakdown-panel"><div class="panel-heading"><div><span class="section-index">01 / Components</span><h2>Published charges by utility</h2></div><span class="unit-tag">Values shown as published</span></div><div id="breakdownContent"></div></section>
+          <section class="category-cards" id="categoryCards"></section>
+        </section>
+
+        <section class="view" id="view-sources" aria-labelledby="sourcesTitle">
+          <div class="page-heading">
+            <div><div class="kicker"><span class="kicker-line"></span>Trace every rate</div><h1 id="sourcesTitle">Sources and coverage<span class="title-period">.</span></h1><p class="page-subtitle">See where each rate came from, when it was retrieved, and what is still missing.</p></div>
+            <button class="button button-secondary" id="refreshButton" type="button"><span class="refresh-symbol">↻</span> Refresh registered sources</button>
+          </div>
+          <div class="source-explainer"><span class="explainer-icon">⌁</span><div><strong>Official sources first</strong><p>DU websites and announcements are checked before third-party leads. DOE and ERC references support utility identity and regulation. A failed fetch never changes a rate.</p></div></div>
+          <section class="panel source-coverage-panel"><div class="panel-heading"><div><span class="section-index">01 / Monthly status</span><h2>Coverage for <span id="sourceMonthLabel">—</span></h2></div><div class="status-key"><span><i class="status-dot current"></i>Current</span><span><i class="status-dot review"></i>Needs review</span><span><i class="status-dot pending"></i>Pending</span><span><i class="status-dot unavailable"></i>Unavailable</span></div></div><div id="sourceCoverageTable"></div></section>
+          <section class="panel source-registry-panel"><div class="panel-heading"><div><span class="section-index">02 / Source registry</span><h2>Registered source links</h2></div><span class="table-hint">Each source has a type and an independent check history.</span></div><div id="sourceRegistryTable"></div></section>
+          <details class="admin-panel" id="adminPanel">
+            <summary><span class="admin-lock">⌑</span><span><small>Administrator tools</small><strong>Manage the roster and source checks</strong></span><b>⌄</b></summary>
+            <div class="admin-content">
+              <div class="admin-auth-row"><label class="admin-token-label">Admin token<input id="adminToken" type="password" autocomplete="current-password" placeholder="Enter configured token" /></label><button class="button button-secondary" id="saveAdminToken" type="button">Unlock tools</button><span id="adminMessage" class="admin-message" aria-live="polite"></span></div>
+              <section class="admin-section"><div class="admin-section-title"><span class="section-index">A / Review queue</span><button class="text-button" id="loadCandidates" type="button">Load pending candidates <span>↻</span></button></div><div id="candidateQueue" class="candidate-queue"><p class="muted-copy">Review findings here before they appear in rate comparisons.</p></div></section>
+              <section class="admin-section"><div class="admin-section-title"><span class="section-index">B / Edit utility profile</span></div><div class="admin-form-grid"><label>Utility<select id="editDuSelect" class="form-select"></select></label><label>Full name<input id="editDuName" class="form-input" /></label><label>Acronym<input id="editDuAcronym" class="form-input" /></label><label>DU type<select id="editDuType" class="form-select"><option>Electric cooperative</option><option>Private utility</option><option>Ecozone utility</option><option>Municipal utility</option><option>Other distribution utility</option></select></label><label class="span-two">Service-area notes<textarea id="editDuNotes" class="form-input" rows="2"></textarea></label><label class="span-two">Identity source URL<input id="editDuIdentityUrl" class="form-input" type="url" /></label><label class="check-label">Track this utility<input id="editDuActive" type="checkbox" class="check-input" /></label><label>Source to edit<select id="editSourceSelect" class="form-select"></select></label><label>Source URL<input id="editSourceUrl" class="form-input" type="url" /></label><label>Source type<select id="editSourceType" class="form-select"><option value="official_website">Official website</option><option value="official_social">Official social media</option><option value="regulatory_reference">Regulatory reference</option><option value="third_party_lead">Third-party lead</option></select></label><label>Enable monthly check<input id="editSourceIngest" type="checkbox" class="check-input" /></label><div class="form-actions"><button class="button button-primary" id="saveDuProfile" type="button">Save utility and source <span>→</span></button></div></div></section>
+              <section class="admin-section"><div class="admin-section-title"><span class="section-index">C / Add a region or utility</span></div><div class="admin-form-grid two-forms"><form id="addRegionForm" class="mini-form"><h3>New region</h3><label>Region name<input name="name" class="form-input" required /></label><label>Region code<input name="region_code" class="form-input" placeholder="Region IV-A" required /></label><button class="button button-secondary" type="submit">Add region</button></form><form id="addDuForm" class="mini-form"><h3>New utility</h3><label>Region<select name="region_id" id="newDuRegion" class="form-select"></select></label><label>Full name<input name="full_name" class="form-input" required /></label><label>Acronym<input name="acronym" class="form-input" required /></label><label>DU type<input name="du_type" class="form-input" placeholder="Electric cooperative" required /></label><label>Service area<input name="service_area_notes" class="form-input" /></label><label>Identity source<input name="identity_source_url" class="form-input" type="url" /></label><button class="button button-secondary" type="submit">Add utility</button></form></div></section>
+              <section class="admin-section"><div class="admin-section-title"><span class="section-index">D / Enter or correct a rate</span></div><form id="manualRateForm" class="admin-form-grid rate-entry-form"><label>Utility<select name="du_id" id="manualRateDu" class="form-select"></select></label><label>Effective month<input name="effective_month" id="manualRateMonth" type="month" class="form-input" required /></label><label>Customer class<select name="customer_class_id" id="manualRateClass" class="form-select"></select></label><label>Published total (PHP/kWh)<input name="published_total" class="form-input" type="number" min="0" step="0.000001" /></label><label>Source type<select name="source_type" class="form-select"><option value="official_website">Official website</option><option value="official_social">Official social media</option><option value="regulatory_reference">Regulatory reference</option><option value="third_party_lead">Third-party lead</option></select></label><label>Publication date<input name="publication_date" class="form-input" type="date" /></label><label class="span-two">Source URL<input name="source_url" class="form-input" type="url" required placeholder="Paste the direct rate announcement link" /></label><label class="span-two">Components JSON <small>(Enter only components published by the source; use [] if none)</small><textarea name="components" class="form-input code-input" rows="4" placeholder="[]"></textarea></label><div class="form-actions"><button class="button button-primary" type="submit">Save reviewed rate <span>→</span></button></div></form><p class="micro-copy">For a Facebook rate, open the actual monthly-rate post and paste its link. Choose Official social media only after confirming the page belongs to the DU. Enter the published total exactly as shown; no example rate is prefilled. Corrections are written to the audit history.</p></section>
+              <div class="audit-link-row"><button class="text-button" id="loadAudit" type="button">View recent change history <span>↗</span></button><div id="auditHistory"></div></div>
+            </div>
+          </details>
+          <footer class="page-footer"><span>Gridwatch · Region III</span><span>Data is linked to its source. Coverage gaps are intentional until verified.</span></footer>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{
+  "retrieved_at": "2026-11-07T15:13:50+08:00",
+  "source_note": "Verified on 2026-11-07 against the distribution utility's own public rate page or schedule. The source reports a residential rate per kWh. Publication dates are included only when the source states them.",
+  "rates": [
+    {
+      "du_id": "neeco-i",
+      "effective_month": "2026-10",
+      "published_total": "12.2469",
+      "source_url": "https://neeco1.org/unbundled-power-rates",
+      "basis": "Residential · published total rate per kWh",
+      "components": []
+    },
+    {
+      "du_id": "neeco-ii-area-1",
+      "effective_month": "2026-10",
+      "published_total": "12.0032",
+      "source_url": "https://www.neeco2area1.com/assets/file_manager/filemanager/source/Power%20Rates/2026/10.%20Unbundled%20Rate_October%202026.pdf",
+      "basis": "Residential · total including VAT per kWh",
+      "components": [
+        { "normalized_category": "generation", "original_label": "Generation Energy Charge", "value": "6.2152" },
+        { "normalized_category": "transmission", "original_label": "Transmission Energy Charge", "value": "0.7047" },
+        { "normalized_category": "transmission", "original_label": "Transmission Ancillary Service Energy Charge", "value": "0.6763" },
+        { "normalized_category": "system_loss", "original_label": "System Loss Charge", "value": "0.6554" },
+        { "normalized_category": "other_charge", "original_label": "Renewable Energy Certificate (REC)", "value": "0.0030" },
+        { "normalized_category": "distribution", "original_label": "Distribution Energy Charge", "value": "0.5782" },
+        { "normalized_category": "supply", "original_label": "Supply Energy Charge", "value": "0.6001" },
+        { "normalized_category": "metering", "original_label": "Metering Energy Charge", "value": "0.4326" },
+        { "normalized_category": "distribution", "original_label": "RFCS/Member's Consumer for CAPEX", "value": "0.3606" },
+        { "normalized_category": "other_charge", "original_label": "Lifeline Subsidy Charge", "value": "0.0100" },
+        { "normalized_category": "other_charge", "original_label": "Senior Citizen Subsidy Charge", "value": "0.0002" },
+        { "normalized_category": "tax", "original_label": "VAT - Generation", "value": "0.6750" },
+        { "normalized_category": "tax", "original_label": "VAT - Transmission/Franchise", "value": "0.0754" },
+        { "normalized_category": "tax", "original_label": "VAT - Transmission Ancillary Service", "value": "0.0590" },
+        { "normalized_category": "tax", "original_label": "VAT - Distribution", "value": "0.2366" },
+        { "normalized_category": "universal_charge", "original_label": "NPC Stranded Debts", "value": "0.0428" },
+        { "normalized_category": "universal_charge", "original_label": "Missionary Electrification", "value": "0.3397" },
+        { "normalized_category": "universal_charge", "original_label": "Environmental", "value": "0.0025" },
+        { "normalized_category": "universal_charge", "original_label": "Feed-In Tariff Allowance (FIT-ALL)", "value": "0.3359" }
+      ]
+    },
+    {
+      "du_id": "pelco-ii",
+      "effective_month": "2026-10",
+      "published_total": "11.0307",
+      "source_url": "https://pelco2.com/services/rates",
+      "basis": "Residential · published total rate per kWh",
+      "components": []
+    },
+    {
+      "du_id": "sfelapco",
+      "effective_month": "2026-10",
+      "published_total": "13.3600",
+      "source_url": "https://sfelapco.com/resources/rates",
+      "basis": "Overall rate for a typical 240 kWh residential household, per kWh",
+      "components": [
+        { "normalized_category": "generation", "original_label": "Generation Charge", "value": "7.0455" }
+      ]
+    },
+    {
+      "du_id": "tarelco-i",
+      "effective_month": "2026-10",
+      "published_total": "13.6400",
+      "source_url": "https://tarelco1ph.com/power-rates",
+      "basis": "Standard residential rate for member-consumer-owners consuming more than 20 kWh per month, per kWh",
+      "components": [
+        { "normalized_category": "generation", "original_label": "Retail Generation Rate", "value": "7.9254" }
+      ]
+    },
+    {
+      "du_id": "tarelco-ii",
+      "effective_month": "2026-10",
+      "published_total": "12.3350",
+      "source_url": "https://tarelco2.com/powerrates",
+      "basis": "Residential · published total rate per kWh",
+      "components": [
+        { "normalized_category": "generation", "original_label": "Average Generation Cost", "value": "6.8647" }
+      ]
+    },
+    {
+      "du_id": "zameco-i",
+      "effective_month": "2026-10",
+      "published_total": "12.4422",
+      "source_url": "https://zameco1.com/wp/2026/11/03/power-rates-for-october-2026/",
+      "publication_date": "2026-11-03",
+      "basis": "Residential · published total rate per kWh",
+      "components": [
+        { "normalized_category": "generation", "original_label": "Generation Charge", "value": "7.2529" },
+        { "normalized_category": "distribution", "original_label": "Distribution, Supply and Metering (DSM) Charge", "value": "1.4640" },
+        { "normalized_category": "universal_charge", "original_label": "UC-ME (Missionary Electrification)", "value": "0.3397" }
+      ]
+    }
+  ]
+}

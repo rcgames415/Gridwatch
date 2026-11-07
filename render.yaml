@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: gridwatch
+    runtime: node
+    plan: 0.5c-512mb
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    disk:
+      name: gridwatch-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: HOST
+        value: "0.0.0.0"
+      - key: DATABASE_PATH
+        value: "/var/data/gridwatch.sqlite"
+      - key: GRIDWATCH_ADMIN_TOKEN
+        generateValue: true
+      - key: INGEST_ENABLED
+        value: "true"
+      - key: INGEST_HOUR_MANILA
+        value: "08"
+      - key: INGEST_AUTO_PUBLISH_THIRD_PARTY
+        value: "true"
+      - key: INGEST_AUTO_PUBLISH_CONFIDENCE
+        value: "0.95"

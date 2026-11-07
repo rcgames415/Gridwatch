@@ -1,0 +1,26 @@
+{
+  "retrieved_at": "2026-11-07T14:09:09+08:00",
+  "source_note": "SmartEnergyPH reports these residential all-in rates rounded to PHP 0.01/kWh and links to DU announcements. Gridwatch has not independently rechecked each original announcement. These are clearly labeled third-party leads, not official DU announcements.",
+  "rates": [
+    { "du_id": "aec", "effective_month": "2026-10", "published_total": "12.31", "generation": "7.25", "source_url": "https://smartenergyph.com/electricity/rates/aec/" },
+    { "du_id": "aurelco", "effective_month": "2026-09", "published_total": "14.09", "generation": "6.61", "source_url": "https://smartenergyph.com/electricity/rates/aurelco/" },
+    { "du_id": "cedc", "effective_month": "2026-09", "published_total": "7.15", "generation": "4.24", "source_url": "https://smartenergyph.com/electricity/rates/cedc/" },
+    { "du_id": "celcor", "effective_month": "2026-09", "published_total": "13.07", "generation": "7.37", "source_url": "https://smartenergyph.com/electricity/rates/celcor/" },
+    { "du_id": "neeco-i", "effective_month": "2026-09", "published_total": "11.81", "generation": "6.42", "source_url": "https://smartenergyph.com/electricity/rates/neeco-i/" },
+    { "du_id": "neeco-ii-area-1", "effective_month": "2026-09", "published_total": "12.03", "generation": "6.03", "source_url": "https://smartenergyph.com/electricity/rates/neeco-ii-area-i/" },
+    { "du_id": "neeco-ii-area-2", "effective_month": "2026-09", "published_total": "14.33", "generation": "6.92", "source_url": "https://smartenergyph.com/electricity/rates/neeco-ii-area-ii/" },
+    { "du_id": "oedc", "effective_month": "2026-10", "published_total": "13.01", "generation": "7.96", "source_url": "https://smartenergyph.com/electricity/rates/oedc/" },
+    { "du_id": "pelco-i", "effective_month": "2026-09", "published_total": "10.76", "generation": "6.14", "source_url": "https://smartenergyph.com/electricity/rates/pelco-i/" },
+    { "du_id": "pelco-ii", "effective_month": "2026-10", "published_total": "11.03", "generation": "5.77", "source_url": "https://smartenergyph.com/electricity/rates/pelco-ii/" },
+    { "du_id": "pelco-iii", "effective_month": "2026-10", "published_total": "12.91", "generation": "7.72", "source_url": "https://smartenergyph.com/electricity/rates/pelco-iii/" },
+    { "du_id": "penelco", "effective_month": "2026-09", "published_total": "11.24", "generation": "6.40", "source_url": "https://smartenergyph.com/electricity/rates/penelco/" },
+    { "du_id": "presco", "effective_month": "2026-10", "published_total": "12.38", "generation": "6.99", "source_url": "https://smartenergyph.com/electricity/rates/presco/" },
+    { "du_id": "sajelco", "effective_month": "2026-10", "published_total": "12.22", "generation": "7.70", "source_url": "https://smartenergyph.com/electricity/rates/sajelco/" },
+    { "du_id": "sfelapco", "effective_month": "2026-09", "published_total": "13.12", "generation": "6.66", "source_url": "https://smartenergyph.com/electricity/rates/sfelapco/" },
+    { "du_id": "tarelco-i", "effective_month": "2026-09", "published_total": "11.65", "generation": "7.50", "source_url": "https://smartenergyph.com/electricity/rates/tarelco-i/" },
+    { "du_id": "tarelco-ii", "effective_month": "2026-10", "published_total": "12.34", "generation": "6.53", "source_url": "https://smartenergyph.com/electricity/rates/tarelco-ii/" },
+    { "du_id": "tei", "effective_month": "2026-09", "published_total": "12.07", "generation": "6.75", "source_url": "https://smartenergyph.com/electricity/rates/tei/" },
+    { "du_id": "zameco-i", "effective_month": "2026-09", "published_total": "12.48", "generation": "7.22", "source_url": "https://smartenergyph.com/electricity/rates/zameco-i/" },
+    { "du_id": "zameco-ii", "effective_month": "2026-09", "published_total": "12.48", "generation": "7.01", "source_url": "https://smartenergyph.com/electricity/rates/zameco-ii/" }
+  ]
+}

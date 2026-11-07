@@ -1,0 +1,14 @@
+{
+  "name": "gridwatch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monthly electricity rate comparison for Philippine distribution utilities.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "ingest": "node server.js --ingest-once"
+  }
+}

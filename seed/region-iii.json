@@ -1,0 +1,180 @@
+{
+  "region": {
+    "id": "ph-region-iii",
+    "name": "Central Luzon",
+    "region_code": "Region III"
+  },
+  "customer_classes": [
+    { "id": "residential", "name": "Residential", "comparison_default": 1, "sort_order": 10 },
+    { "id": "low-voltage", "name": "Low voltage", "comparison_default": 0, "sort_order": 20 },
+    { "id": "commercial", "name": "Commercial", "comparison_default": 0, "sort_order": 30 },
+    { "id": "industrial", "name": "Industrial", "comparison_default": 0, "sort_order": 40 },
+    { "id": "other", "name": "Other / published class", "comparison_default": 0, "sort_order": 100 }
+  ],
+  "utilities": [
+    { "id": "aec", "full_name": "Angeles Electric Corporation", "acronym": "AEC", "du_type": "Private utility", "service_area_notes": "Franchise area: Angeles City, Pampanga.", "website": "https://angeleselectric.com.ph/", "ingest_enabled": 1 },
+    { "id": "cedc", "full_name": "Clark Electric Distribution Corporation", "acronym": "CEDC", "du_type": "Private utility", "service_area_notes": "Clark Freeport Zone and adjoining sub-zones.", "website": "https://www.clarkelectric.ph/", "ingest_enabled": 1 },
+    { "id": "celcor", "full_name": "Cabanatuan Electric Corporation", "acronym": "CELCOR", "du_type": "Private utility", "service_area_notes": "Cabanatuan City, Nueva Ecija.", "website": "https://averia.celcor.com.ph/", "ingest_enabled": 1 },
+    { "id": "oedc", "full_name": "Olongapo Electricity Distribution Company, Inc.", "acronym": "OEDC", "du_type": "Private utility", "service_area_notes": "Olongapo City, Zambales.", "website": "https://www.oedc.com.ph/", "ingest_enabled": 1 },
+    { "id": "sez", "full_name": "Subic EnerZone Corporation", "acronym": "SEZ", "du_type": "Ecozone utility", "service_area_notes": "Subic Bay Freeport Zone; franchise coverage includes areas in Zambales and Bataan.", "website": "https://support.subicenerzone.aboitizpower.com/hc/en-us", "ingest_enabled": 0, "source_note": "Official Subic EnerZone support portal; no current public monthly rate archive was verified. Add a verified rate channel before enabling ingestion." },
+    { "id": "sfelapco", "full_name": "San Fernando Electric Light and Power Company, Inc.", "acronym": "SFELAPCO", "du_type": "Private utility", "service_area_notes": "San Fernando City and Floridablanca, Pampanga.", "website": "https://sfelapco.com/", "ingest_enabled": 1 },
+    { "id": "tei", "full_name": "Tarlac Electric, Inc.", "acronym": "TEI", "du_type": "Private utility", "service_area_notes": "Tarlac City, Tarlac.", "website": "https://tarlacelectric.com/", "ingest_enabled": 1 },
+    { "id": "aurelco", "full_name": "Aurora Electric Cooperative, Inc.", "acronym": "AURELCO", "du_type": "Electric cooperative", "service_area_notes": "Aurora Province.", "website": "https://www.aurelcomain.com/", "ingest_enabled": 1 },
+    { "id": "neeco-i", "full_name": "Nueva Ecija I Electric Cooperative, Inc.", "acronym": "NEECO I", "du_type": "Electric cooperative", "service_area_notes": "Nueva Ecija service area; consult the cooperative for the current franchise boundary.", "website": "https://neeco1.org/", "ingest_enabled": 1 },
+    { "id": "neeco-ii-area-1", "full_name": "Nueva Ecija II Electric Cooperative, Inc. – Area 1", "acronym": "NEECO II Area 1", "du_type": "Electric cooperative", "service_area_notes": "Includes Talavera, Lupao, Carranglan, Aliaga, Quezon, Licab, Sto. Domingo, Muñoz, Guimba and Talugtug, Nueva Ecija.", "website": "https://www.neeco2area1.com/", "ingest_enabled": 1 },
+    { "id": "neeco-ii-area-2", "full_name": "Nueva Ecija II Electric Cooperative, Inc. – Area 2", "acronym": "NEECO II Area 2", "du_type": "Electric cooperative", "service_area_notes": "Nueva Ecija II Area 2 franchise area; see the cooperative's coverage map for current boundaries.", "website": "https://www.neeco2area2.com/", "ingest_enabled": 1 },
+    { "id": "pelco-i", "full_name": "Pampanga I Electric Cooperative, Inc.", "acronym": "PELCO I", "du_type": "Electric cooperative", "service_area_notes": "Portions of Pampanga served by Pampanga I Electric Cooperative.", "website": "https://www.pelco1.org.ph/", "ingest_enabled": 1 },
+    { "id": "pelco-ii", "full_name": "Pampanga II Electric Cooperative, Inc.", "acronym": "PELCO II", "du_type": "Electric cooperative", "service_area_notes": "Portions of Pampanga served by Pampanga II Electric Cooperative.", "website": "https://pelco2.com/services/rates", "ingest_enabled": 1 },
+    { "id": "pelco-iii", "full_name": "Pampanga III Electric Cooperative, Inc.", "acronym": "PELCO III", "du_type": "Electric cooperative", "service_area_notes": "Apalit, Macabebe, Masantol, San Simon, Minalin and Sto. Tomas, Pampanga.", "website": "https://www.pelco3.org/", "ingest_enabled": 1 },
+    { "id": "penelco", "full_name": "Peninsula Electric Cooperative, Inc.", "acronym": "PENELCO", "du_type": "Electric cooperative", "service_area_notes": "Bataan Province, with freeport service areas served by separate utilities.", "website": "https://www.penelco.com/", "ingest_enabled": 1 },
+    { "id": "presco", "full_name": "Pampanga Rural Electric Cooperative, Inc.", "acronym": "PRESCO", "du_type": "Electric cooperative", "service_area_notes": "Rural Pampanga service area; verify current boundaries with PRESCO.", "website": "https://presco1968.wixsite.com/presco/copy-of-rate-2016", "ingest_enabled": 0, "source_note": "ERC's regional profile links this historical generation-rate page; verify a current official channel before enabling automated checks." },
+    { "id": "sajelco", "full_name": "San Jose City Electric Cooperative, Inc.", "acronym": "SAJELCO", "du_type": "Electric cooperative", "service_area_notes": "San Jose City and surrounding areas in Nueva Ecija; see the cooperative for the current franchise boundary.", "website": "https://www.sajelco.net/", "ingest_enabled": 1 },
+    { "id": "tarelco-i", "full_name": "Tarlac I Electric Cooperative, Inc.", "acronym": "TARELCO I", "du_type": "Electric cooperative", "service_area_notes": "Area offices serve Anao, Calayaan, Camiling, Cuyapo, Mayantoc, Moncada, Nampicuan, Paniqui, Pura, Ramos, San Clemente, San Manuel, San Jose, Sta. Ignacia and Victoria.", "website": "https://tarelco1ph.com/", "ingest_enabled": 1 },
+    { "id": "tarelco-ii", "full_name": "Tarlac II Electric Cooperative, Inc.", "acronym": "TARELCO II", "du_type": "Electric cooperative", "service_area_notes": "Tarlac II franchise area; see the cooperative's coverage information for current boundaries.", "website": "https://tarelco2.com/", "ingest_enabled": 1 },
+    { "id": "zameco-i", "full_name": "Zambales I Electric Cooperative, Inc.", "acronym": "ZAMECO I", "du_type": "Electric cooperative", "service_area_notes": "Zambales I franchise area, based in Palauig, Zambales.", "website": "https://zameco1.com/wp/", "ingest_enabled": 1 },
+    { "id": "zameco-ii", "full_name": "Zambales II Electric Cooperative, Inc.", "acronym": "ZAMECO II", "du_type": "Electric cooperative", "service_area_notes": "Zambales II franchise area; see the cooperative's coverage information for current boundaries.", "website": "https://zameco2.com/", "ingest_enabled": 1 }
+  ],
+  "references": {
+    "doe_ddp": "https://prod-cms.doe.gov.ph/documents/d/epimb/2023-2032-distribution-development-plan",
+    "doe_electricity_rates": "https://doe.gov.ph/data-and-prices/electricity",
+    "erc_cooperatives": "https://www.erc.gov.ph/Content-Singular/184",
+    "erc_private_schedules": "https://www.erc.gov.ph/Content-Singular/181"
+  },
+  "social_sources": [
+    {
+      "id": "facebook-aec",
+      "du_id": "aec",
+      "label": "AEC official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/AngelesElectricOfficial",
+      "notes": "The AEC website links to this page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-tei",
+      "du_id": "tei",
+      "label": "TEI official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/tei.ph",
+      "notes": "TEI's contact page identifies @tei.ph as its official Facebook account. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-neeco-ii-area-1",
+      "du_id": "neeco-ii-area-1",
+      "label": "NEECO II Area 1 official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/NEECO2AREA1OFFICIAL/",
+      "notes": "Linked from the NEECO II Area 1 official website. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-neeco-ii-area-2",
+      "du_id": "neeco-ii-area-2",
+      "label": "NEECO II Area 2 official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/neeco2a2/",
+      "notes": "NEECO II Area 2's contact page lists this Facebook page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-pelco-ii",
+      "du_id": "pelco-ii",
+      "label": "PELCO II official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/Pelco2",
+      "notes": "PELCO II's official website identifies this as its official Facebook page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-presco",
+      "du_id": "presco",
+      "label": "PRESCO official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/presco.pampanga",
+      "notes": "PRESCO's contact page links to this Facebook page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-sajelco",
+      "du_id": "sajelco",
+      "label": "SAJELCO official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/sajelco",
+      "notes": "SAJELCO's official website lists this Facebook page under Contact Us. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-tarelco-ii",
+      "du_id": "tarelco-ii",
+      "label": "TARELCO II official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/TARELCO2",
+      "notes": "The TARELCO II website links to this Facebook page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-zameco-i",
+      "du_id": "zameco-i",
+      "label": "ZAMECO I official Facebook page",
+      "source_type": "official_social",
+      "url": "https://www.facebook.com/ZAMECOI",
+      "notes": "ZAMECO I's official website links to this Facebook page. Use posts as human-reviewed source references; automatic Facebook retrieval is disabled until authorized Meta API access is configured."
+    },
+    {
+      "id": "facebook-lead-aurelco",
+      "du_id": "aurelco",
+      "label": "Facebook page lead: AURELCO",
+      "source_type": "third_party_lead",
+      "url": "https://www.facebook.com/aurelcoofficial",
+      "notes": "This candidate link appeared in a third-party utility directory, not on the AURELCO website. Verify directly with AURELCO before treating a post as an official announcement. Automatic checks are disabled."
+    },
+    {
+      "id": "facebook-lead-oedc",
+      "du_id": "oedc",
+      "label": "Facebook page lead: OEDC",
+      "source_type": "third_party_lead",
+      "url": "https://www.facebook.com/OEDCOfficial",
+      "notes": "This candidate link appeared in a third-party publication, not on the OEDC website. Verify directly with OEDC before treating a post as an official announcement. Automatic checks are disabled."
+    },
+    {
+      "id": "facebook-lead-pelco-iii",
+      "du_id": "pelco-iii",
+      "label": "Facebook page lead: PELCO III",
+      "source_type": "third_party_lead",
+      "url": "https://www.facebook.com/pelco3official",
+      "notes": "This candidate link appeared in a third-party directory, not on the PELCO III website. Verify directly with PELCO III before treating a post as an official announcement. Automatic checks are disabled."
+    },
+    {
+      "id": "facebook-lead-penelco",
+      "du_id": "penelco",
+      "label": "Facebook page lead: PENELCO",
+      "source_type": "third_party_lead",
+      "url": "https://www.facebook.com/penelco",
+      "notes": "This candidate handle appears in a third-party directory and has not been confirmed on PENELCO's website. Verify directly with PENELCO before treating a post as an official announcement. Automatic checks are disabled."
+    },
+    {
+      "id": "facebook-lead-tarelco-i",
+      "du_id": "tarelco-i",
+      "label": "Facebook page lead: TARELCO I",
+      "source_type": "third_party_lead",
+      "url": "https://www.facebook.com/Tarelco-Uno-111115074020547",
+      "notes": "This candidate link appeared in third-party directories, not on the TARELCO I website. Verify directly with TARELCO I before treating a post as an official announcement. Automatic checks are disabled."
+    }
+  ],
+  "third_party_ingest_enabled": 1,
+  "third_party_sources": [
+    { "id": "third-party-smartenergyph-aec", "du_id": "aec", "label": "SmartEnergyPH rate history — AEC", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/aec/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to the original AEC announcements. Not an official AEC announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-aurelco", "du_id": "aurelco", "label": "SmartEnergyPH rate history — AURELCO", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/aurelco/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official AURELCO announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-cedc", "du_id": "cedc", "label": "SmartEnergyPH rate history — CEDC", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/cedc/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to the original CEDC announcements. Not an official CEDC announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-celcor", "du_id": "celcor", "label": "SmartEnergyPH rate history — CELCOR", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/celcor/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official CELCOR announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-neeco-i", "du_id": "neeco-i", "label": "SmartEnergyPH rate history — NEECO I", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/neeco-i/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to NEECO I original announcements. Not an official NEECO I announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-neeco-ii-area-1", "du_id": "neeco-ii-area-1", "label": "SmartEnergyPH rate history — NEECO II Area 1", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/neeco-ii-area-i/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official NEECO II Area 1 announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-neeco-ii-area-2", "du_id": "neeco-ii-area-2", "label": "SmartEnergyPH rate history — NEECO II Area 2", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/neeco-ii-area-ii/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official NEECO II Area 2 announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-oedc", "du_id": "oedc", "label": "SmartEnergyPH rate history — OEDC", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/oedc/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to OEDC announcement sources. Not an official OEDC announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-pelco-i", "du_id": "pelco-i", "label": "SmartEnergyPH rate history — PELCO I", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/pelco-i/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to PELCO I original announcements. Not an official PELCO I announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-pelco-ii", "du_id": "pelco-ii", "label": "SmartEnergyPH rate history — PELCO II", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/pelco-ii/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official PELCO II announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-pelco-iii", "du_id": "pelco-iii", "label": "SmartEnergyPH rate history — PELCO III", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/pelco-iii/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to the original DU announcement source. Not an official PELCO III announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-penelco", "du_id": "penelco", "label": "SmartEnergyPH rate history — PENELCO", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/penelco/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to PENELCO source announcements. Not an official PENELCO announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-presco", "du_id": "presco", "label": "SmartEnergyPH rate history — PRESCO", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/presco/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official PRESCO announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-sajelco", "du_id": "sajelco", "label": "SmartEnergyPH rate history — SAJELCO", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/sajelco/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official SAJELCO announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-sfelapco", "du_id": "sfelapco", "label": "SmartEnergyPH rate history — SFELAPCO", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/sfelapco/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official SFELAPCO announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-tarelco-i", "du_id": "tarelco-i", "label": "SmartEnergyPH rate history — TARELCO I", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/tarelco-i/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official TARELCO I announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-tarelco-ii", "du_id": "tarelco-ii", "label": "SmartEnergyPH rate history — TARELCO II", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/tarelco-ii/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official TARELCO II announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-tei", "du_id": "tei", "label": "SmartEnergyPH rate history — TEI", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/tei/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official TEI announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-zameco-i", "du_id": "zameco-i", "label": "SmartEnergyPH rate history — ZAMECO I", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/zameco-i/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; the profile links to the original source, including Facebook. Not an official ZAMECO I announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 },
+    { "id": "third-party-smartenergyph-zameco-ii", "du_id": "zameco-ii", "label": "SmartEnergyPH rate history — ZAMECO II", "source_type": "third_party_lead", "url": "https://smartenergyph.com/electricity/rates/zameco-ii/", "notes": "Third-party compilation of DU announcements. Rounded to two decimal places; check the profile for original-source links. Not an official ZAMECO II announcement and not independently verified by Gridwatch.", "ingest_enabled": 0 }
+  ]
+}

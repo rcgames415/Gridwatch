@@ -1,0 +1,37 @@
+name: Refresh Gridwatch rates
+
+on:
+  # Render runs the daily retry inside the always-on web service.
+  # This action remains available for a manual administrator refresh.
+  workflow_dispatch:
+
+concurrency:
+  group: gridwatch-rate-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh-current-month:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Ask the live Gridwatch server to check registered sources
+        env:
+          GRIDWATCH_BASE_URL: ${{ vars.GRIDWATCH_BASE_URL }}
+          GRIDWATCH_ADMIN_TOKEN: ${{ secrets.GRIDWATCH_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${GRIDWATCH_BASE_URL:-}" || "$GRIDWATCH_BASE_URL" != https://* ]]; then
+            echo "Set the GitHub repository variable GRIDWATCH_BASE_URL to the public HTTPS address of Gridwatch."
+            exit 1
+          fi
+          if [[ -z "${GRIDWATCH_ADMIN_TOKEN:-}" ]]; then
+            echo "Set the GitHub repository secret GRIDWATCH_ADMIN_TOKEN to the same value used by the Gridwatch server."
+            exit 1
+          fi
+          curl --fail --silent --show-error \
+            --retry 3 --retry-delay 10 --connect-timeout 20 --max-time 120 \
+            --request POST "${GRIDWATCH_BASE_URL%/}/api/admin/refresh" \
+            --header "x-admin-token: ${GRIDWATCH_ADMIN_TOKEN}" \
+            --header 'content-type: application/json' \
+            --data '{}'
