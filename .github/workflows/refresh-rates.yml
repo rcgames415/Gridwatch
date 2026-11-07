@@ -1,8 +1,8 @@
 name: Refresh Gridwatch rates
 
 on:
-  # Render runs the daily retry inside the always-on web service.
-  # This action remains available for a manual administrator refresh.
+  # Vercel runs the daily refresh from vercel.json.
+  # This workflow remains available for an administrator-triggered refresh.
   workflow_dispatch:
 
 concurrency:

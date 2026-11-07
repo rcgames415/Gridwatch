@@ -1,6 +1,6 @@
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { db, getRow, getRows, id, audit, nowIso, ensureMonth, currentManilaMonth, manilaDateParts, getSetting, setSetting } from './db.js';
+import { PDFParse } from 'pdf-parse';
+import { getRow, getRows, run, transaction, id, nowIso, ensureMonth, currentManilaMonth, manilaDateParts } from './db.js';
 
 const timeoutMs = Number(process.env.INGEST_REQUEST_TIMEOUT_MS || 18000);
 const userAgent = process.env.INGEST_USER_AGENT || 'GridwatchRateMonitor/1.0';
@@ -32,23 +32,13 @@ function htmlToText(source) {
     .trim();
 }
 
-function pdfToText(buffer) {
-  let lastError;
-  for (const command of ['pdftotext', 'pdftotext.exe']) {
-    try {
-      return execFileSync(command, ['-layout', '-', '-'], {
-        input: buffer,
-        encoding: 'utf8',
-        timeout: 12000,
-        maxBuffer: 8 * 1024 * 1024,
-        windowsHide: true
-      });
-    } catch (error) {
-      lastError = error;
-      if (error.code !== 'ENOENT') throw new Error(`PDF text extraction failed: ${error.message}`);
-    }
+async function pdfToText(buffer) {
+  const parser = new PDFParse({ data: buffer });
+  try {
+    return (await parser.getText()).text;
+  } finally {
+    await parser.destroy();
   }
-  throw new Error(`PDF detected, but pdftotext is not installed${lastError ? '.' : ''}`);
 }
 
 function rateDocumentLinks(html, baseUrl, month) {
@@ -85,7 +75,7 @@ async function fetchSource(url, month) {
   const pdf = /application\/pdf/i.test(contentType) || parsed.pathname.toLowerCase().endsWith('.pdf') || buffer.subarray(0, 4).toString() === '%PDF';
   try {
     const rawText = buffer.toString('utf8');
-    const text = pdf ? pdfToText(buffer) : htmlToText(rawText);
+    const text = pdf ? await pdfToText(buffer) : htmlToText(rawText);
     if (text.length < 24) return { httpStatus: response.status, error: 'The fetched page did not contain enough readable text.' };
     return { httpStatus: response.status, text, contentType, links: pdf ? [] : rateDocumentLinks(rawText, parsed, month) };
   } catch (error) {
@@ -162,12 +152,12 @@ function extractSmartEnergyCandidate(text, month) {
   };
 }
 
-function publishStructuredThirdPartyRate(source, month, candidate, checkedAt) {
-  const customerClass = db.prepare("SELECT id FROM customer_classes WHERE name = 'Residential'").get();
-  const before = db.prepare(`SELECT * FROM rates WHERE du_id = ? AND effective_month = ? AND customer_class_id = ?`)
-    .get(source.du_id, month, customerClass.id);
+async function publishStructuredThirdPartyRate(source, month, candidate, checkedAt) {
+  const customerClass = await getRow("SELECT id FROM customer_classes WHERE name = 'Residential'");
+  const before = await getRow(`SELECT * FROM rates WHERE du_id = ? AND effective_month = ? AND customer_class_id = ?`,
+    source.du_id, month, customerClass.id);
   const oldComponents = before
-    ? db.prepare('SELECT * FROM rate_components WHERE rate_id = ? ORDER BY sort_order, original_label').all(before.id)
+    ? await getRows('SELECT * FROM rate_components WHERE rate_id = ? ORDER BY sort_order, original_label', before.id)
     : [];
   const nextComponents = candidate.parsed.components || [];
 
@@ -187,7 +177,8 @@ function publishStructuredThirdPartyRate(source, month, candidate, checkedAt) {
   const rateId = before?.id || id();
   const sourceUrl = source.url;
   const reviewNote = 'Auto-published from a structured SmartEnergyPH residential rate table. This is a third-party lead rounded to PHP 0.01/kWh, not an official DU announcement; the linked profile lists original-source references. Confirm with the DU.';
-  db.prepare(`INSERT INTO rates
+  await transaction(async (tx) => {
+  await tx.run(`INSERT INTO rates
     (id, du_id, effective_month, customer_class_id, currency, unit, published_total, published_total_original,
      source_id, source_url, source_type, publication_date, retrieved_at, extraction_status, review_status,
      review_note, basis, updated_at)
@@ -197,25 +188,26 @@ function publishStructuredThirdPartyRate(source, month, candidate, checkedAt) {
       published_total_original=excluded.published_total_original, source_id=excluded.source_id,
       source_url=excluded.source_url, source_type=excluded.source_type, publication_date=excluded.publication_date,
       retrieved_at=excluded.retrieved_at, extraction_status=excluded.extraction_status,
-      review_status=excluded.review_status, review_note=excluded.review_note, basis=excluded.basis, updated_at=excluded.updated_at`)
-    .run(rateId, source.du_id, month, customerClass.id, candidate.published_total, candidate.published_total,
-      source.id, sourceUrl, checkedAt, reviewNote, candidate.parsed.basis || 'Residential rate per kWh', checkedAt);
+      review_status=excluded.review_status, review_note=excluded.review_note, basis=excluded.basis, updated_at=excluded.updated_at`,
+  rateId, source.du_id, month, customerClass.id, candidate.published_total, candidate.published_total,
+  source.id, sourceUrl, checkedAt, reviewNote, candidate.parsed.basis || 'Residential rate per kWh', checkedAt);
 
-  db.prepare('DELETE FROM rate_components WHERE rate_id = ?').run(rateId);
-  const insertComponent = db.prepare(`INSERT INTO rate_components
-    (id, rate_id, normalized_category, original_label, original_value, value, value_state, currency, unit, sort_order)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'PHP', 'kWh', ?)`);
+  await tx.run('DELETE FROM rate_components WHERE rate_id = ?', rateId);
   for (const [index, component] of nextComponents.entries()) {
-    insertComponent.run(id(), rateId, component.normalized_category, component.original_label,
+    await tx.run(`INSERT INTO rate_components
+      (id, rate_id, normalized_category, original_label, original_value, value, value_state, currency, unit, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'PHP', 'kWh', ?)`, id(), rateId, component.normalized_category, component.original_label,
       component.original_value ?? component.value ?? null, component.value ?? null,
       component.value_state || (Number(component.value) === 0 ? 'zero' : 'value'), (index + 1) * 10);
   }
   const after = {
-    ...db.prepare('SELECT * FROM rates WHERE id = ?').get(rateId),
-    components: db.prepare('SELECT * FROM rate_components WHERE rate_id = ? ORDER BY sort_order, original_label').all(rateId)
+    ...await tx.row('SELECT * FROM rates WHERE id = ?', rateId),
+    components: await tx.rows('SELECT * FROM rate_components WHERE rate_id = ? ORDER BY sort_order, original_label', rateId)
   };
-  audit('rate', rateId, before ? 'correction' : 'create', before ? { ...before, components: oldComponents } : null,
-    after, 'scheduler');
+  await tx.run(`INSERT INTO audit_log (id, entity_type, entity_id, action, before_json, after_json, changed_by, changed_at)
+    VALUES (?, 'rate', ?, ?, ?, ?, 'scheduler', ?)`, id(), rateId, before ? 'correction' : 'create',
+  before ? JSON.stringify({ ...before, components: oldComponents }) : null, JSON.stringify(after), nowIso());
+  });
   return { published: true, corrected: Boolean(before), rate_id: rateId };
 }
 
@@ -249,13 +241,13 @@ function extractCandidate(text, source, month) {
   };
 }
 
-function writeCheck(source, status, httpStatus, message, month, duId, candidateCount = 0) {
+async function writeCheck(source, status, httpStatus, message, month, duId, candidateCount = 0) {
   const checkedAt = nowIso();
-  db.prepare(`INSERT INTO source_checks
+  await run(`INSERT INTO source_checks
     (id, source_id, du_id, effective_month, checked_at, status, http_status, message, candidate_count)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id(), source.id, duId, month, checkedAt, status, httpStatus, message || '', candidateCount);
-  db.prepare(`UPDATE sources SET last_checked_at = ?, last_check_status = ?, last_check_message = ?, updated_at = ? WHERE id = ?`)
-    .run(checkedAt, status, message || '', checkedAt, source.id);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, id(), source.id, duId, month, checkedAt, status, httpStatus, message || '', candidateCount);
+  await run(`UPDATE sources SET last_checked_at = ?, last_check_status = ?, last_check_message = ?, updated_at = ? WHERE id = ?`,
+    checkedAt, status, message || '', checkedAt, source.id);
   return checkedAt;
 }
 
@@ -263,13 +255,13 @@ async function checkOne(source, month) {
   const checkedAt = nowIso();
   try {
     if (!source.url) {
-      writeCheck(source, 'fetch_failed', null, 'No URL is registered for this source.', month, source.du_id);
+      await writeCheck(source, 'fetch_failed', null, 'No URL is registered for this source.', month, source.du_id);
       return { source_id: source.id, du_id: source.du_id, status: 'fetch_failed' };
     }
     const result = await fetchSource(source.url, month);
     if (result.error) {
       const failure = result.httpStatus && result.httpStatus < 400 ? 'parse_failed' : 'fetch_failed';
-      writeCheck(source, failure, result.httpStatus, result.error, month, source.du_id);
+      await writeCheck(source, failure, result.httpStatus, result.error, month, source.du_id);
       return { source_id: source.id, du_id: source.du_id, status: failure, message: result.error };
     }
     let parsed = extractCandidate(result.text, source, month);
@@ -285,49 +277,48 @@ async function checkOne(source, month) {
     }
     if (!parsed) {
       if (linkedParseError) {
-        writeCheck(source, 'parse_failed', result.httpStatus, `Linked monthly document could not be parsed: ${linkedParseError}`, month, source.du_id);
+        await writeCheck(source, 'parse_failed', result.httpStatus, `Linked monthly document could not be parsed: ${linkedParseError}`, month, source.du_id);
         return { source_id: source.id, du_id: source.du_id, status: 'parse_failed', message: linkedParseError };
       }
-      writeCheck(source, 'not_found', result.httpStatus, `Page checked; no clearly labeled residential ${month} rate was found.`, month, source.du_id);
+      await writeCheck(source, 'not_found', result.httpStatus, `Page checked; no clearly labeled residential ${month} rate was found.`, month, source.du_id);
       return { source_id: source.id, du_id: source.du_id, status: 'not_found' };
     }
     if (autoPublishThirdParty && parsed.automatic_publish === true && parsed.confidence >= autoPublishConfidence) {
-      const publication = publishStructuredThirdPartyRate(source, month, parsed, checkedAt);
+      const publication = await publishStructuredThirdPartyRate(source, month, parsed, checkedAt);
       if (!publication.needs_review) {
         const message = publication.unchanged
           ? 'A matching third-party rate is already recorded.'
           : 'High-confidence structured third-party rate published with a third-party label.';
-        writeCheck(source, 'checked', result.httpStatus, message, month, source.du_id, 0);
+        await writeCheck(source, 'checked', result.httpStatus, message, month, source.du_id, 0);
         return { source_id: source.id, du_id: source.du_id, status: 'checked', auto_published: publication.published || false, corrected: publication.corrected || false, unchanged: publication.unchanged || false };
       }
     }
-    const residential = db.prepare(`SELECT id FROM customer_classes WHERE name = 'Residential'`).get();
+    const residential = await getRow(`SELECT id FROM customer_classes WHERE name = 'Residential'`);
     const keyFingerprint = createHash('sha256').update(JSON.stringify({ total: parsed.published_total, excerpt: parsed.raw_excerpt, parsed: parsed.parsed })).digest('hex');
     const key = `${source.id}:${month}:${residential.id}:${keyFingerprint}`;
     const candidateId = id();
     const reviewNote = source.source_type === 'third_party_lead'
       ? 'Third-party compiled rate candidate. Inspect the profile and its linked original DU announcement, then confirm the customer class and total before approval.'
       : 'Automated extraction is a candidate only; compare with the original DU announcement before publication.';
-    const inserted = db.prepare(`INSERT OR IGNORE INTO ingest_candidates
+    const inserted = await run(`INSERT OR IGNORE INTO ingest_candidates
       (id, du_id, source_id, effective_month, customer_class_id, published_total, published_total_original, source_url, source_type,
        publication_date, retrieved_at, confidence, raw_excerpt, parsed_json, status, review_note, idempotency_key)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_review', ?, ?)`)
-      .run(candidateId, source.du_id, source.id, month, residential.id, parsed.published_total, parsed.published_total_original,
-        candidateUrl, source.source_type, parsed.publication_date, checkedAt, parsed.confidence,
-        parsed.raw_excerpt, JSON.stringify(parsed.parsed),
-        reviewNote, key);
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_review', ?, ?)`,
+      candidateId, source.du_id, source.id, month, residential.id, parsed.published_total, parsed.published_total_original,
+      candidateUrl, source.source_type, parsed.publication_date, checkedAt, parsed.confidence,
+      parsed.raw_excerpt, JSON.stringify(parsed.parsed), reviewNote, key);
     const staged = Number(inserted.changes) > 0;
-    writeCheck(source, 'checked', result.httpStatus, staged ? 'A possible residential rate was staged for review.' : 'A matching announcement was found; this extraction already exists in the review history.', month, source.du_id, staged ? 1 : 0);
+    await writeCheck(source, 'checked', result.httpStatus, staged ? 'A possible residential rate was staged for review.' : 'A matching announcement was found; this extraction already exists in the review history.', month, source.du_id, staged ? 1 : 0);
     return { source_id: source.id, du_id: source.du_id, status: 'checked', candidate: staged, match: true };
   } catch (error) {
-    writeCheck(source, 'fetch_failed', null, error.message || 'Unexpected fetch failure.', month, source.du_id);
+    await writeCheck(source, 'fetch_failed', null, error.message || 'Unexpected fetch failure.', month, source.du_id);
     return { source_id: source.id, du_id: source.du_id, status: 'fetch_failed', message: error.message };
   }
 }
 
 export async function runIngestionForMonth(month = currentManilaMonth()) {
-  ensureMonth(month);
-  const sources = getRows(`SELECT * FROM sources WHERE enabled = 1 AND ingest_enabled = 1 AND url IS NOT NULL ORDER BY id`);
+  await ensureMonth(month);
+  const sources = await getRows(`SELECT * FROM sources WHERE enabled = 1 AND ingest_enabled = 1 AND url IS NOT NULL ORDER BY id`);
   const results = [];
   let cursor = 0;
   const worker = async () => {
@@ -345,33 +336,9 @@ export async function runIngestionForMonth(month = currentManilaMonth()) {
     failures: results.filter((item) => ['fetch_failed', 'parse_failed'].includes(item.status)).length,
     results
   };
-  db.prepare(`INSERT INTO audit_log (id, entity_type, entity_id, action, after_json, changed_by, changed_at)
-    VALUES (?, 'ingestion', ?, 'refresh', ?, 'scheduler', ?)`)
-    .run(id(), month, JSON.stringify({ ...summary, results: undefined }), nowIso());
+  await run(`INSERT INTO audit_log (id, entity_type, entity_id, action, after_json, changed_by, changed_at)
+    VALUES (?, 'ingestion', ?, 'refresh', ?, 'scheduler', ?)`, id(), month, JSON.stringify({ ...summary, results: undefined }), nowIso());
   return summary;
-}
-
-export function startDailyScheduler() {
-  if (String(process.env.INGEST_ENABLED || 'true').toLowerCase() === 'false') return;
-  const targetHour = Math.max(0, Math.min(23, Number(process.env.INGEST_HOUR_MANILA || 8)));
-  let inProgress = false;
-  const tick = async () => {
-    if (inProgress) return;
-    const parts = manilaDateParts();
-    const dayKey = `${parts.year}-${parts.month}-${parts.day}`;
-    if (Number(parts.hour) < targetHour || getSetting('last_scheduler_run_date') === dayKey) return;
-    inProgress = true;
-    setSetting('last_scheduler_run_date', dayKey);
-    try {
-      await runIngestionForMonth(currentManilaMonth());
-    } catch (error) {
-      console.error('Gridwatch scheduled ingestion failed:', error.message);
-    } finally {
-      inProgress = false;
-    }
-  };
-  tick();
-  setInterval(tick, 60_000).unref();
 }
 
 export function monthForCurrentManilaDate() {

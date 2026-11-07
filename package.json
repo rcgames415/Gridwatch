@@ -9,6 +9,11 @@
   },
   "scripts": {
     "start": "node server.js",
+    "dev": "node server.js",
     "ingest": "node server.js --ingest-once"
+  },
+  "dependencies": {
+    "pdf-parse": "^2.4.5",
+    "postgres": "^3.4.7"
   }
 }

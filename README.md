@@ -8,48 +8,42 @@ The dashboard opens on the latest month with a published rate in the database (O
 
 ## Stack
 
-- Node.js 22.5 or later. The app uses Node's built-in HTTP server and `node:sqlite`.
-- SQLite for persistent structured records, migrations, and audit history.
-- Plain HTML, CSS, and browser JavaScript for the responsive UI. No package installation or build step is required.
-- `pdftotext` (Poppler) is optional for extracting text from public PDF announcements. HTML pages and plain text are handled directly.
+- Node.js 22.5 or later. The app uses Node's built-in HTTP server and the Vercel Node.js Functions runtime.
+- SQLite for local use; Supabase Postgres for the hosted website, where records persist across function restarts.
+- Plain HTML, CSS, and browser JavaScript for the responsive UI. No front-end build step is required.
+- `postgres` connects the server functions to Supabase through its serverless transaction pooler. `pdf-parse` handles text in public PDF announcements.
 
 ## Run locally
 
-1. Copy `.env.example` to `.env` and set a long random `GRIDWATCH_ADMIN_TOKEN`. The server loads `.env` with Node's built-in environment-file support; values already set by the host environment take precedence.
-2. Start the application:
+1. Install the packages with `npm install`.
+2. Copy `.env.example` to `.env` and set a long random `GRIDWATCH_ADMIN_TOKEN`. Leave `POSTGRES_URL` blank for local SQLite use. The server loads `.env` with Node's built-in environment-file support; values already set by the host environment take precedence.
+3. Start the application:
 
    ```sh
    node server.js
    ```
 
-3. Open `http://localhost:3000`.
+4. Open `http://localhost:3000`.
 
-The first start creates `data/gridwatch.sqlite`, applies SQL migrations from `migrations/`, and seeds the Central Luzon roster, source registry, 846-row historical series, third-party snapshot, and checked October 2026 utility rates from the files in `seed/`. Rate seed imports are idempotent; official October corrections replace only the matching initial seeded third-party row, and all replacements are written to the audit history. Later manual rate entries are preserved.
+The first start creates `data/gridwatch.sqlite`, applies SQL migrations from `migrations/`, and seeds the Central Luzon roster, source registry, historical series, third-party snapshot, and checked October 2026 utility rates from `seed/`. Seed imports are idempotent, and later manual rate entries are preserved.
 
-The app uses the Asia/Manila timezone for the current effective month and the scheduler. Set `PORT`, `HOST`, and `DATABASE_PATH` to match your environment. Keep the database on persistent storage in production.
+The app uses the Asia/Manila timezone for effective months. Set `PORT`, `HOST`, and `DATABASE_PATH` to match your local environment. Local data stays in SQLite; the hosted Vercel version uses Supabase Postgres.
 
 ## Scheduled ingestion
 
-Ingestion checks sources that are both enabled and marked `ingest_enabled`. The built-in scheduler runs daily at `INGEST_HOUR_MANILA` (default `08`, 24-hour time) in `Asia/Manila`. It checks the current effective month and retries daily through the month. Set `INGEST_ENABLED=false` to disable the in-process scheduler.
+Ingestion checks sources that are both enabled and marked `ingest_enabled`. The Vercel Cron job in `vercel.json` calls the protected refresh route once a day at 00:00 UTC (08:00 in the Philippines). It checks the current effective month and retries daily through the month. Vercel Hobby permits one cron run per day.
 
-The ingestor fetches public HTTP/HTTPS pages and PDF documents, records retrieval and parse failures in `source_checks`, and looks for a clearly labeled residential amount tied to the current month. Most matches become an **unreviewed candidate** for an administrator to compare with the original source. A failed fetch or missing rate never changes a rate record. Unsupported or image-only PDFs are recorded as parse failures; install Poppler (`pdftotext`) on the server to process text PDFs.
+The ingestor fetches public HTTP/HTTPS pages and PDF documents, records retrieval and parse failures in `source_checks`, and looks for a clearly labeled residential amount tied to the current month. Most matches become an **unreviewed candidate** for an administrator to compare with the original source. A failed fetch or missing rate never changes a rate record. Image-only PDFs are recorded as parse failures.
 
 SmartEnergyPH DU profile pages are registered as **third-party leads** and checked with a table-specific parser. When it finds a clear current-month residential row and generation value with confidence at or above `INGEST_AUTO_PUBLISH_CONFIDENCE`, that figure can be published automatically as a labeled third-party lead. It is rounded to the source's two decimal places and is not presented as an official DU announcement. Set `INGEST_AUTO_PUBLISH_THIRD_PARTY=false` to require administrator approval instead. If the table does not match the expected columns, no number is published. Facebook references remain manual because this project does not use Meta's authenticated API.
 
-The in-process scheduler retries once daily through the month while the web service remains running. The included `.github/workflows/refresh-rates.yml` is manual by default so it does not duplicate the Render scheduler. For a host that sleeps or cannot run a background timer, enable its `schedule` trigger and configure these GitHub settings:
-
-- Repository variable `GRIDWATCH_BASE_URL`: the public HTTPS URL of the deployed Gridwatch site.
-- Repository secret `GRIDWATCH_ADMIN_TOKEN`: the same token configured in the deployed app's environment.
-
-When you enable the schedule, the workflow calls the app at 08:15 Asia/Manila every day and can also be started with GitHub's **Run workflow** button. Set `INGEST_ENABLED=false` on the web service so only one scheduler runs. The source check still will not fill a missing month with an estimate.
-
-For a deployment that cannot keep one web process alive and does not use the included GitHub workflow, disable the in-process scheduler and schedule this command daily in the Asia/Manila timezone:
+For local use, run a refresh manually from the administrator page or use this command:
 
 ```sh
 node server.js --ingest-once
 ```
 
-The command checks the current Manila month, and is safe to rerun: candidate keys are unique by source, month, and customer class. Use a single daily job (for example, 08:00 Asia/Manila) to retry throughout the month. Do not run a production scheduler against an ephemeral database.
+The command checks the current Manila month. It is safe to rerun because candidate keys are unique by source, month, and customer class. GitHub's included workflow is also manual; Vercel handles the automatic daily schedule online.
 
 ### Manual refresh
 
@@ -57,11 +51,23 @@ Open **Sources and coverage → Administrator tools**, enter the configured admi
 
 The same action is available at `POST /api/admin/refresh` with `x-admin-token` set to `GRIDWATCH_ADMIN_TOKEN`; an optional JSON body can specify `{"month":"2026-11"}`.
 
-### Deploy on Render
+### Deploy free with Vercel and Supabase
 
-The repository includes `render.yaml` for a Node.js web service in Singapore. It attaches a 1 GB persistent disk at `/var/data` and points SQLite there, so rate records survive restarts and deploys. Render's free web services cannot attach persistent disks; the current smallest always-on web service plan is $7 per month and a 1 GB disk adds $0.25 per month. The Hobby workspace plan is free and includes 5 GB monthly bandwidth; usage above that is currently $0.15 per GB. This makes the expected starting cost about **$7.25/month**, plus any bandwidth overage or applicable taxes. See [Render's current pricing](https://render.com/pricing).
+This setup is intended for a personal, non-commercial project and costs $0 while it stays within the providers' free limits. Vercel Hobby is for personal/non-commercial use, and its scheduled jobs run once per day on the free plan. Supabase Free includes a 500 MB database; inactive projects can be paused after a week of low database activity and must be resumed in the Supabase dashboard. Check the providers' current [Vercel plan details](https://vercel.com/docs/plans/hobby), [Vercel cron limits](https://vercel.com/docs/cron-jobs/manage-cron-jobs), [Supabase pricing](https://supabase.com/pricing), and [Supabase pause policy](https://supabase.com/docs/guides/platform/free-project-pausing).
 
-To deploy, push the repository to GitHub, open the Render Dashboard, select **New → Blueprint**, connect the repository, and apply the `render.yaml` plan. Render generates the administrator token as a secret environment variable. After the first deploy, find `GRIDWATCH_ADMIN_TOKEN` under the service's Environment settings and use it to unlock Administrator tools. The app's built-in scheduler checks sources daily at 08:00 Asia/Manila while the service is running. A disk-backed service uses one instance and has a brief interruption during deploys.
+1. Create a Supabase project and choose Singapore as its region. After it is ready, open **Connect**, choose **Transaction pooler**, and copy the URI. Keep the URI private. Add `&workaround=supabase-pooler.vercel` to the end of the URI (or `?workaround=supabase-pooler.vercel` if it has no query string). Supabase recommends its transaction pooler for serverless functions; the app uses a single pooled connection with prepared statements disabled. See [Supabase's serverless connection instructions](https://supabase.com/docs/guides/database/connecting-to-postgres/serverless-drivers).
+2. In Vercel, choose **Add New → Project**, import `rcgames415/Gridwatch`, and deploy with the default settings. The repository's `vercel.json` sets Singapore as the function region, includes the database seed and migration files, and schedules the daily refresh at 08:00 Philippines time.
+3. Before opening the live site, add these three **Production** environment variables in Vercel under **Project Settings → Environment Variables**:
+
+   - `POSTGRES_URL`: the complete Supabase Transaction Pooler URI with the workaround parameter above.
+   - `GRIDWATCH_ADMIN_TOKEN`: a private long random phrase used to unlock Administrator tools.
+   - `CRON_SECRET`: a different private long random phrase used to protect the scheduled refresh.
+
+   Do not put these values in GitHub or in a source file. Vercel sends the `CRON_SECRET` as a Bearer token to the scheduled route. After saving the variables, redeploy the project.
+
+The first request to the site creates the Supabase tables, applies the migration, and imports the included roster and rate history. The Vercel daily job checks current-month sources and retries the missing DUs. Open the site's **Sources and coverage → Administrator tools** and enter `GRIDWATCH_ADMIN_TOKEN` to manage rates and sources. The free Supabase project does not include automatic database backups, so export a copy before making major data changes.
+
+The included GitHub workflow remains available for a manual refresh. Do not enable a second daily schedule while Vercel Cron is active.
 
 ### Facebook announcements
 
@@ -129,11 +135,9 @@ Component `value_state` can be `value`, `zero`, `missing`, or `not_published`. O
 - `GET /api/rates?from=YYYY-MM&to=YYYY-MM&dus=aec,cedc&customer_class_id=residential` returns approved comparable rates.
 - `GET /api/breakdown?month=YYYY-MM&dus=aec,cedc` returns the approved monthly records with components.
 
-## Deployment
+## Hosting notes
 
-Run `node server.js` as the web process and expose the configured `PORT`. Set `GRIDWATCH_ADMIN_TOKEN`, `DATABASE_PATH`, scheduler variables, and persistent storage in the host's environment. Configure a health check against `/api/bootstrap`. For a single always-on instance, keep the built-in daily scheduler enabled. For a sleeping web service, use the included GitHub workflow with the deployed site URL and admin token; set `INGEST_ENABLED=false` on the web service so only the workflow schedules checks. A separate cron job can instead run `node server.js --ingest-once` daily with the same persistent database and environment. Only one scheduler should run for a given database.
-
-The interface can also be served behind a reverse proxy, but API paths must be forwarded to the Node service. Keep the admin token out of source control and restrict write endpoints at the host boundary when exposing the app publicly.
+Vercel serves files from `public/` through its CDN and sends `/api/*` requests to the Node function. Vercel's function and Cron configuration is in `vercel.json`; the Cron schedule uses UTC, where 00:00 UTC equals 08:00 in the Philippines. The local `node server.js` command uses SQLite and does not start a background scheduler. The hosted instance uses `POSTGRES_URL` and the Vercel Cron route.
 
 ## Seed references
 
@@ -146,7 +150,7 @@ Per-DU public website and ERC reference records are seeded separately in the sou
 
 ## Git
 
-The repository excludes `.env`, generated SQLite files, logs, installed dependencies, and local output folders. From the extracted project directory, create a local commit and connect the empty repository you created with your Git host:
+The public source repository is [rcgames415/Gridwatch](https://github.com/rcgames415/Gridwatch). It excludes `.env`, generated SQLite files, logs, installed dependencies, and local output folders. Keep provider passwords and tokens in the Vercel environment settings only.
 
 ```sh
 git init -b main
@@ -156,4 +160,4 @@ git remote add origin <your-repository-url>
 git push -u origin main
 ```
 
-Set deployment environment variables and persistent database storage on the hosting platform before launching a public instance. This project bundle has no remote configured and has not been pushed or published.
+To get updates in an existing local copy of the project, open its terminal and run `git pull` from the `main` branch.
