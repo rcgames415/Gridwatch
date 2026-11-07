@@ -13,8 +13,8 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Main navigation">
-      <a class="brand" href="#dashboard" aria-label="Gridwatch home">
+    <aside class="sidebar" aria-label="Main Navigation">
+      <a class="brand" href="#dashboard" aria-label="Gridwatch Home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span class="brand-word">GRIDWATCH<span class="brand-dot">.</span><small>PHILIPPINES</small></span>
       </a>
@@ -43,7 +43,7 @@
         <div class="breadcrumb"><span id="breadcrumbRegion">Region III</span><b>/</b><strong id="breadcrumbView">Overview</strong></div>
         <div class="topbar-actions">
           <span class="timezone-note"><span class="clock-icon">◷</span> Asia/Manila</span>
-          <label class="month-control" for="globalMonth"><span>Month</span><select id="globalMonth" aria-label="Effective month"></select></label>
+          <label class="month-control" for="globalMonth"><span>Month</span><select id="globalMonth" aria-label="Effective Month"></select></label>
           <button class="icon-button" id="refreshIcon" type="button" aria-label="Refresh dashboard data" title="Reload data">↻</button>
           <span class="avatar" aria-hidden="true">GW</span>
         </div>
@@ -57,7 +57,7 @@
               <h1 id="pageTitle">Electricity rates at a glance<span class="title-period">.</span></h1>
               <p class="page-subtitle">A clear look at what distribution utilities publish each month.</p>
             </div>
-            <div class="heading-date"><span class="date-icon">▦</span><span><small>Effective month</small><strong id="headingMonth">—</strong></span></div>
+            <div class="heading-date"><span class="date-icon">▦</span><span><small>Effective Month</small><strong id="headingMonth">—</strong></span></div>
           </div>
 
           <div class="stats-grid" id="dashboardStats" aria-live="polite"></div>
@@ -65,8 +65,8 @@
           <div class="content-grid rate-grid">
             <section class="panel chart-panel" aria-labelledby="rateChartTitle">
               <div class="panel-heading">
-                <div><span class="section-index">01 / Comparison</span><h2 id="rateChartTitle">Residential rate snapshot</h2></div>
-                <div class="panel-actions"><span class="unit-tag">PHP / kWh</span><button class="text-button" data-navigate="comparison" type="button">Compare months <span>↗</span></button></div>
+                <div><span class="section-index">01 / Comparison</span><h2 id="rateChartTitle">Residential Rate Snapshot</h2></div>
+                <div class="panel-actions"><span class="unit-tag">PHP / kWh</span><button class="text-button" data-navigate="comparison" type="button">Compare Months <span>↗</span></button></div>
               </div>
               <div id="dashboardChart" class="chart-area"></div>
               <div class="chart-footer"><span><i class="legend-dot"></i>Residential rate · PHP/kWh</span><span>Third-party figures are labeled as leads; confirm them with the DU.</span></div>
@@ -74,33 +74,33 @@
 
             <section class="panel coverage-panel" aria-labelledby="coverageTitle">
               <div class="panel-heading compact-heading">
-                <div><span class="section-index">02 / Data coverage</span><h2 id="coverageTitle">Coverage at a glance</h2></div>
+                <div><span class="section-index">02 / Data Coverage</span><h2 id="coverageTitle">Coverage at a glance</h2></div>
                 <span class="mini-badge" id="coveragePercent">0%</span>
               </div>
               <div class="coverage-progress"><span id="coverageBar"></span></div>
               <div class="coverage-legend" id="coverageLegend"></div>
               <div class="coverage-callout"><span class="callout-mark">i</span><p>Reviewed source records appear in comparisons. Third-party leads are labeled and are not official DU announcements. Missing months stay blank.</p></div>
-              <button class="link-row" data-navigate="sources" type="button">View source coverage <span>→</span></button>
+              <button class="link-row" data-navigate="sources" type="button">View Source Coverage <span>→</span></button>
             </section>
           </div>
 
           <div class="content-grid lower-grid">
             <section class="panel table-panel" aria-labelledby="latestTableTitle">
               <div class="panel-heading">
-                <div><span class="section-index">03 / Latest available</span><h2 id="latestTableTitle">Highest and lowest rates</h2></div>
+                <div><span class="section-index">03 / Latest Available</span><h2 id="latestTableTitle">Highest and Lowest Rates</h2></div>
                 <button class="text-button" data-navigate="comparison" type="button">Open comparison <span>↗</span></button>
               </div>
               <div id="leadersContent"></div>
             </section>
             <section class="panel change-panel" aria-labelledby="changeTitle">
-              <div class="panel-heading"><div><span class="section-index">04 / Month over month</span><h2 id="changeTitle">What changed</h2></div></div>
+              <div class="panel-heading"><div><span class="section-index">04 / Month Over Month</span><h2 id="changeTitle">What Changed</h2></div></div>
               <div id="changesContent"></div>
               <div class="small-note">Changes compare the same customer class and published basis.</div>
             </section>
           </div>
 
           <section class="panel coverage-list-panel">
-            <div class="panel-heading"><div><span class="section-index">05 / Utilities</span><h2 id="regionCoverageTitle">Central Luzon coverage</h2></div><div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="duSearch" type="search" placeholder="Find a utility" aria-label="Search distribution utilities" /></label><button class="text-button" data-navigate="sources" type="button">All coverage <span>↗</span></button></div></div>
+            <div class="panel-heading"><div><span class="section-index">05 / Utilities</span><h2 id="regionCoverageTitle">Central Luzon Coverage</h2></div><div class="table-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="duSearch" type="search" placeholder="Find a utility" aria-label="Search Distribution Utilities" /></label><button class="text-button" data-navigate="sources" type="button">All Coverage <span>↗</span></button></div></div>
             <div id="duCoverageTable"></div>
           </section>
 
@@ -109,18 +109,18 @@
 
         <section class="view" id="view-comparison" aria-labelledby="comparisonTitle">
           <div class="page-heading">
-            <div><div class="kicker"><span class="kicker-line"></span>Compare / monthly</div><h1 id="comparisonTitle">Compare monthly rates<span class="title-period">.</span></h1><p class="page-subtitle">Compare published residential totals over time. Missing months stay blank.</p></div>
+            <div><div class="kicker"><span class="kicker-line"></span>Compare / Monthly</div><h1 id="comparisonTitle">Compare Monthly Rates<span class="title-period">.</span></h1><p class="page-subtitle">Compare published residential totals over time. Missing months stay blank.</p></div>
             <span class="unit-tag large-unit">PHP / kWh</span>
           </div>
           <section class="panel filter-panel">
-            <div class="filter-block"><label for="comparisonClass">Customer class</label><select id="comparisonClass" class="form-select"></select></div>
+            <div class="filter-block"><label for="comparisonClass">Customer Class</label><select id="comparisonClass" class="form-select"></select></div>
             <div class="filter-block"><label for="comparisonFrom">From</label><input class="form-input" type="month" id="comparisonFrom" /></div>
             <div class="filter-block"><label for="comparisonTo">To</label><input class="form-input" type="month" id="comparisonTo" /></div>
-            <details class="du-picker"><summary><span>Utilities</span><strong id="duPickerSummary">Select utilities</strong><b>⌄</b></summary><div class="du-picker-list" id="comparisonDuList"></div></details>
-            <button class="button button-primary" id="applyComparison" type="button">Update comparison <span>→</span></button>
+            <details class="du-picker"><summary><span>Utilities</span><strong id="duPickerSummary">Select Utilities</strong><b>⌄</b></summary><div class="du-picker-list" id="comparisonDuList"></div></details>
+            <button class="button button-primary" id="applyComparison" type="button">Update Comparison <span>→</span></button>
           </section>
-          <section class="panel comparison-panel"><div class="panel-heading"><div><span class="section-index">01 / Rate history</span><h2>Monthly rate comparison</h2></div><span class="unit-tag">Residential · PHP/kWh</span></div><div id="comparisonChart" class="chart-area chart-large"></div><p class="chart-note">Bars are grouped by month. Scroll horizontally to see the full history; missing rates are left blank. Hover over or focus a bar for its published basis.</p></section>
-          <section class="panel table-panel"><div class="panel-heading"><div><span class="section-index">02 / Rate table</span><h2>Rates by month</h2></div><span class="table-hint">Each row includes its source, customer class, basis, and retrieval date.</span></div><div id="comparisonTable"></div></section>
+          <section class="panel comparison-panel"><div class="panel-heading"><div><span class="section-index">01 / Rate History</span><h2>Monthly Rate Comparison</h2></div><span class="unit-tag">Residential · PHP/kWh</span></div><div id="comparisonChart" class="chart-area chart-large"></div><p class="chart-note">Bars are grouped by month. Scroll horizontally to see the full history; missing rates are left blank. Hover over or focus a bar for its published basis.</p></section>
+          <section class="panel table-panel"><div class="panel-heading"><div><span class="section-index">02 / Rate Table</span><h2>Rates by Month</h2></div><span class="table-hint">Each row includes its source, customer class, basis, and retrieval date.</span></div><div id="comparisonTable"></div></section>
           <div class="bill-note"><span class="note-icon">✳</span><p>Compare rates with the same customer class and published per kWh basis. Bills can differ with usage, taxes, and other charges. An empty cell means that no rate is available for that DU and month.</p></div>
         </section>
 
