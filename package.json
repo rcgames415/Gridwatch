@@ -5,7 +5,7 @@
   "description": "Monthly electricity rate comparison for Philippine distribution utilities.",
   "type": "module",
   "engines": {
-    "node": ">=22.5.0"
+    "node": "22.x"
   },
   "scripts": {
     "start": "node server.js",
