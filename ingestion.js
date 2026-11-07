@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import 'pdf-parse/worker';
 import { PDFParse } from 'pdf-parse';
 import { getRow, getRows, run, transaction, id, nowIso, ensureMonth, currentManilaMonth, manilaDateParts } from './db.js';
 
