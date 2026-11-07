@@ -107,36 +107,61 @@ async function getRateRows({ month, from, to, duIds, customerClassId, approvedOn
 }
 
 async function getCoverage(month) {
-  const utilities = await getRows(`SELECT d.*, r.name AS region_name, r.region_code FROM distribution_utilities d
-    JOIN regions r ON r.id = d.region_id WHERE d.active = 1 ORDER BY d.acronym`);
-  return Promise.all(utilities.map(async (du) => {
-    const rate = await getRow(`SELECT r.*, c.name AS customer_class FROM rates r JOIN customer_classes c ON c.id = r.customer_class_id
-      WHERE r.du_id = ? AND r.effective_month = ? AND r.review_status = 'approved' AND c.comparison_default = 1`, du.id, month);
-    const candidate = await getRow(`SELECT id FROM ingest_candidates WHERE du_id = ? AND effective_month = ? AND status = 'needs_review' LIMIT 1`, du.id, month);
-    const sourceCounts = await getRow(`SELECT COUNT(*) AS total,
-      SUM(CASE WHEN recent.source_id IS NOT NULL THEN 1 ELSE 0 END) AS checked,
-      SUM(CASE WHEN recent.status IN ('fetch_failed','parse_failed') THEN 1 ELSE 0 END) AS failures
-      FROM sources s LEFT JOIN (
-        SELECT source_id, status, ROW_NUMBER() OVER (PARTITION BY source_id ORDER BY checked_at DESC) AS position
-        FROM source_checks WHERE du_id = ? AND effective_month = ?
-      ) recent ON recent.source_id = s.id AND recent.position = 1
-      WHERE s.du_id = ? AND s.enabled = 1 AND s.ingest_enabled = 1`, du.id, month, du.id) || { total: 0, checked: 0, failures: 0 };
-    const latestCheck = (await getRow(`SELECT MAX(checked_at) AS checked_at FROM source_checks WHERE du_id = ? AND effective_month = ?`, du.id, month))?.checked_at || null;
-    const total = Number(sourceCounts?.total || 0);
-    const checked = Number(sourceCounts?.checked || 0);
-    const failures = Number(sourceCounts?.failures || 0);
+  // Coverage is shown on every page load. Keep it to one database round trip;
+  // issuing four queries per utility made a cold dashboard load especially slow
+  // when the Postgres connection is remote.
+  const rows = await getRows(`WITH ranked_checks AS (
+      SELECT source_id, du_id, status, checked_at,
+        ROW_NUMBER() OVER (PARTITION BY source_id ORDER BY checked_at DESC) AS position
+      FROM source_checks WHERE effective_month = ?
+    ), source_coverage AS (
+      SELECT s.du_id, COUNT(*) AS total,
+        SUM(CASE WHEN recent.source_id IS NOT NULL THEN 1 ELSE 0 END) AS checked,
+        SUM(CASE WHEN recent.status IN ('fetch_failed', 'parse_failed') THEN 1 ELSE 0 END) AS failures
+      FROM sources s LEFT JOIN ranked_checks recent
+        ON recent.source_id = s.id AND recent.position = 1
+      WHERE s.enabled = 1 AND s.ingest_enabled = 1
+      GROUP BY s.du_id
+    ), latest_by_du AS (
+      SELECT du_id, MAX(checked_at) AS checked_at
+      FROM source_checks WHERE effective_month = ? GROUP BY du_id
+    )
+    SELECT d.id AS du_id, d.acronym, d.full_name, d.du_type, d.region_id,
+      region.name AS region_name, d.service_area_notes,
+      rate.id AS rate_id, rate.published_total AS rate, rate.currency, rate.unit,
+      CASE WHEN EXISTS (
+        SELECT 1 FROM ingest_candidates candidate
+        WHERE candidate.du_id = d.id AND candidate.effective_month = ? AND candidate.status = 'needs_review'
+      ) THEN 1 ELSE 0 END AS candidate_pending,
+      latest.checked_at AS last_checked_at,
+      COALESCE(source_coverage.total, 0) AS enabled_source_count,
+      COALESCE(source_coverage.checked, 0) AS checked_source_count,
+      COALESCE(source_coverage.failures, 0) AS failed_source_count
+    FROM distribution_utilities d
+    JOIN regions region ON region.id = d.region_id
+    LEFT JOIN rates rate ON rate.du_id = d.id AND rate.effective_month = ?
+      AND rate.review_status = 'approved'
+      AND rate.customer_class_id = (SELECT id FROM customer_classes WHERE comparison_default = 1 LIMIT 1)
+    LEFT JOIN source_coverage ON source_coverage.du_id = d.id
+    LEFT JOIN latest_by_du latest ON latest.du_id = d.id
+    WHERE d.active = 1 ORDER BY d.acronym`, month, month, month, month);
+
+  return rows.map((row) => {
+    const total = Number(row.enabled_source_count || 0);
+    const checked = Number(row.checked_source_count || 0);
+    const failures = Number(row.failed_source_count || 0);
     let status = 'pending';
-    if (candidate) status = 'needs_review';
-    else if (rate) status = 'current';
-    else if (total > 0 && checked === total && failures === total && latestCheck) status = 'unavailable';
+    if (row.candidate_pending) status = 'needs_review';
+    else if (row.rate_id) status = 'current';
+    else if (total > 0 && checked === total && failures === total && row.last_checked_at) status = 'unavailable';
     return {
-      du_id: du.id, acronym: du.acronym, full_name: du.full_name, du_type: du.du_type,
-      region_id: du.region_id, region_name: du.region_name, service_area_notes: du.service_area_notes,
-      status, rate: rate?.published_total ?? null, currency: rate?.currency || 'PHP', unit: rate?.unit || 'kWh',
-      rate_id: rate?.id || null, candidate_pending: Boolean(candidate), last_checked_at: latestCheck,
-      enabled_source_count: total
+      du_id: row.du_id, acronym: row.acronym, full_name: row.full_name, du_type: row.du_type,
+      region_id: row.region_id, region_name: row.region_name, service_area_notes: row.service_area_notes,
+      status, rate: row.rate ?? null, currency: row.currency || 'PHP', unit: row.unit || 'kWh',
+      rate_id: row.rate_id || null, candidate_pending: Boolean(row.candidate_pending),
+      last_checked_at: row.last_checked_at || null, enabled_source_count: total
     };
-  }));
+  });
 }
 
 async function getBootstrap() {
